@@ -1,0 +1,83 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="ss.css" />
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+		<script src="https://code.highcharts.com/modules/annotations.js"></script>
+	</head>
+	<body>
+		<br /><br /><br />
+		<div id="container"></div>
+		<form name="demo"><input type="radio" name="theme" value="Light" checked />Light<input type="radio" name="theme" value="Dark" />Dark</form>
+		<input type="button" onclick="listAnnotations()" value="List Annotations"></button>
+		<br>
+		<textarea name="anns" id="anns" cols="50" rows="24"></textarea>
+	</body>
+</html>
+<script type="module">
+	import { editAnnotation, addAnnotation, getAnnotations } from './annotations.js'
+
+	window.listAnnotations = function listAnnotations() {
+		console.log(JSON.stringify(getAnnotations(the_chart), null, 2))
+		document.getElementById('anns').value = JSON.stringify(getAnnotations(the_chart), null, 2)
+	}
+
+	const the_chart = Highcharts.chart('container', {
+		credits: {
+			enabled: false,
+		},
+		chart: {
+			backgroundColor: '#111',
+			zoomType: 'x',
+			events: {
+				load() {
+					this.rGroup = this.renderer.g('rGroup').add() // create an SVG group to allow translate
+				},
+			},
+		},
+		title: { text: 'Vibration' },
+		plotOptions: {
+			series: {
+				cursor: 'pointer',
+				point: {
+					events: {
+						click(event) {
+							if (event.ctrlKey) {
+								addAnnotation(this)
+							}
+						},
+					},
+				},
+			},
+		},
+		xAxis: {
+			type: 'datetime',
+		},
+		series: [{ data: [{ x: 1645836907000, y: 1 }] }, { data: [{ x: 1645840507000, y: 3 }] }, { data: [{ x: 1645844107000, y: 2 }] }],
+	})
+
+	the_chart.update({ chart: { backgroundColor: document.forms.demo.theme.value === 'Dark' ? '#111' : '#fff' } })
+
+	document.forms.demo.theme.forEach((radio) => {
+		radio.addEventListener('change', () => {
+			the_chart.update({ chart: { backgroundColor: document.forms.demo.theme.value === 'Dark' ? '#111' : '#fff' } })
+		})
+	})
+
+	fetch('./data.json')
+		.then((response) => response.json())
+		.then((data) => {
+			const graphs = data.filter((d) => d.controlType === 47)
+			const series = graphs.map((d) => ({
+				name: d.lineName,
+				data: d.controlValue.map((s, i) => ({ x: s.TimeTicks, y: s.val })),
+			}))
+			the_chart.update({ series })
+			graphs.forEach((d, i) => {
+				if (d.annotations) {
+					const annotations = d.annotations.forEach((a) => {
+						addAnnotation(the_chart, a)
+					})
+				}
+			})
+		})
+</script>
