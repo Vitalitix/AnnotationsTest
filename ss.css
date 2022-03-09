@@ -11,8 +11,6 @@
 	position: fixed;
 	display: grid;
 }
-.icon-cancel:before{
-  content: "\00FF38";
-}
+.icon-cancel:before{ content: "\00FF38"; }
 .icon-ok:before{ content: "\002713"; }
 .icon-trash:before{ content: "\01F5D1"; }

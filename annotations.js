@@ -61,9 +61,9 @@ export function editAnnotation(label) {
 	const inp_id = `inp-${point.id || point.options.id}`
 	const text = `<div id="annotation">
 			<textarea id="${inp_id}"></textarea>
-			<button class="icon-ok"></button>
-			<button class="icon-cancel"></button>
-			<button class="icon-trash"></button>
+			<button class="icon-ok">OK</button>
+			<button class="icon-cancel">Cancel</button>
+			<button class="icon-trash">Delete</button>
 		</div>`
 	chart.editAnnBox = chart.renderer.label(text, chart.plotLeft + point.plotX, chart.plotTop + point.plotY, null, null, null, true).add(chart.rGroup)
 	chart.rGroup.toFront().translate(-60, -80)
